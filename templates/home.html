@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb); /* Light Blue Gradient */
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            display: none;
+            border-radius: 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e0f7fa, #b3e5fc); /* Soft Blue Gradient */
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        .chatbot-header {
+            background: linear-gradient(135deg, #4caf50, #81c784); /* Green Gradient */
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .chatbot-messages {
+            height: 350px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #fafafa; /* Light Gray */
+            border-top: 2px solid #81c784;
+            border-bottom: 2px solid #81c784;
+        }
+        .chatbot-messages p {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .chatbot-messages p strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .chatbot-messages p:nth-child(odd) {
+            background-color: #f1f8e9;
+            color: #388e3c; /* Green */
+        }
+        .chatbot-messages p:nth-child(even) {
+            background-color: #e3f2fd;
+            color: #0277bd; /* Blue */
+        }
+        .chatbot-input-container {
+            display: flex;
+            border-top: 2px solid #81c784;
+        }
+        .chatbot-input-container input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            outline: none;
+            border-radius: 0;
+            font-size: 16px;
+            background-color: #e1f5fe; /* Light Blue */
+            color: #0277bd;
+        }
+        .chatbot-input-container button {
+            padding: 12px;
+            background: linear-gradient(135deg, #0288d1, #039be5); /* Blue Gradient */
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .chatbot-input-container button:hover {
+            background: linear-gradient(135deg, #039be5, #0288d1);
+        }
+        .chatbot-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #009688, #4caf50); /* Teal to Green */
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .chatbot-toggle-btn:hover {
+            background: linear-gradient(135deg, #4caf50, #009688);
+        }
+
+        /* Styling for Options */
+        .chatbot-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 10px;
+        }
+        .chatbot-options button {
+            background: linear-gradient(135deg, #0288d1, #039be5);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .chatbot-options button:hover {
+            background: linear-gradient(135deg, #039be5, #0288d1);
+            transform: translateY(-3px);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .chatbot-options button:active {
+            transform: translateY(2px);
+        }
+    </style>
+    <script>
+        function toggleChatbot() {
+            const chatbot = document.querySelector('.chatbot-container');
+            chatbot.style.display = chatbot.style.display === 'none' ? 'block' : 'none';
+        }
+        async function sendMessage() {
+            const input = document.getElementById('chatbot-input');
+            const message = input.value.trim();
+            if (message === '') return;
+
+            const chatBox = document.querySelector('.chatbot-messages');
+            chatBox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+
+            input.value = '';
+
+            const response = await fetch('/chat/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message }),
+            });
+            const data = await response.json();
+
+            chatBox.innerHTML += `<p><strong>Bot:</strong> ${data.response}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addOptions() {
+            const chatBox = document.querySelector('.chatbot-messages');
+            chatBox.innerHTML += ` 
+                <p>
+                    <strong>Bot:</strong> Please select an option:
+                    <div class="chatbot-options">      
+                        <button onclick="handleOption('Pricing')">Pricing Details</button>
+                        <button onclick="handleOption('Services')">Our Services</button>
+                        <button onclick="handleOption('Contact')">Contact</button>
+                    </div>
+                </p>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleOption(option) {
+            const chatBox = document.querySelector('.chatbot-messages');
+            if (option === 'Pricing') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> Our pricing starts from $99. Contact us for more details!</p>`;
+            } else if (option === 'Services') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We offer the following services:</p>`;
+                chatBox.innerHTML += ` 
+                    <div class="chatbot-options">
+                        <button onclick="handleSubOption('Websites')">Websites</button>
+                        <button onclick="handleSubOption('Apps')">Apps</button>
+                        <button onclick="handleSubOption('Data Analysis')">Data Analysis</button>
+                    </div>
+                `;
+            } else if (option === 'Contact') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> You can contact us at contact@ourcompany.com or call +1-234-567-890.</p>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleSubOption(subOption) {
+            const chatBox = document.querySelector('.chatbot-messages');
+            if (subOption === 'Websites') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We build modern and responsive websites tailored to your needs.</p>`;
+            } else if (subOption === 'Apps') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We develop scalable and user-friendly mobile and web applications.</p>`;
+            } else if (subOption === 'Data Analysis') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We provide insightful data analysis services to help you make informed decisions.</p>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addOptions();
+        });
+    </script>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header" onclick="toggleChatbot()">Chat with us!</div>
+        <div class="chatbot-messages" id="chatbot-messages"></div>
+        <div class="chatbot-input-container">
+            <input type="text" id="chatbot-input" placeholder="Type your message">
+            <button onclick="sendMessage()"><i class="fa-sharp-duotone fa-regular fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button class="chatbot-toggle-btn" onclick="toggleChatbot()">💬</button>
+
+    
+</body>
+</html>   

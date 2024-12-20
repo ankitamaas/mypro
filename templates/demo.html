@@ -1,0 +1,21 @@
+<script>
+    function handleSubOption(subOption) {
+            const chatBox = document.querySelector('.chatbot-messages');
+            if (subOption === 'Websites') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We build modern and responsive websites tailored to your needs.</p>`;
+            } else if (subOption === 'Apps') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We develop scalable and user-friendly mobile and web applications.</p>`;
+            } else if (subOption === 'Data Analysis') {
+                chatBox.innerHTML += `<p><strong>Bot:</strong> We provide insightful data analysis services to help you make informed decisions.</p>`;
+            }
+            else if(subOption === 'Data Analysis'){
+                chatBox.innerHTML (Daat)
+
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addOptions();
+        });
+</script>
